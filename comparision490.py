@@ -1,4 +1,5 @@
 from pymarc import *
+import json
 
 # open the local records
 def marc490(filename):
@@ -80,6 +81,30 @@ def compareKeyNotInList(localList, masterList):
 
     return keysInLocalandNotMaster
 
+def getTags(keyDict, tagID):
+    """replaces getTagValues by getting the entire set of data for a given tag"""
+
+    keyDict = keyDict['fields']
+    resultTagValue = []
+    tagValue = None
+
+    tagList = []
+    for f in keyDict:
+        tagList.append(f)
+
+    if tagList is None:
+        return resultTagValue
+
+    for lines in tagList:
+        # print(lines)
+        for tag in lines:
+            # print(tag)
+            if tag == tagID:
+                # print('true!')
+                resultTagValue.append(lines)
+
+    return resultTagValue
+
 def getTagValues(keyDict, tagID, subfield):
     """as an experiment, returns the OCLC Number in the local record and the Master Record"""
 
@@ -127,6 +152,15 @@ def logResult(recordKey, logString):
         except UnicodeEncodeError:
             log.write('\n'+'failed to write record key: '+str(recordKey)+'\n')
 
+def stringFormDict(tagSet):
+    """given a tag set in dictionary form, returns the strings ready for printing"""
+
+    tagSetStr = ''
+    for line in tagSet:
+        tagSetStr = tagSetStr+json.dumps(line)+'\n\t\t'
+
+    return tagSetStr
+
 def doSomething():
 
 # Create dictionaries from the local and master marc files
@@ -151,10 +185,27 @@ def doSomething():
         oclcNumberM = getTagValues(mDict[key], '035', 'a')
         local260a = getTagValues(lDict[key], '260', 'a')
         master260a = getTagValues(mDict[key], '260', 'a')
+        local440 = getTags(lDict[key], '440')
+        local440st = stringFormDict(local440)
+        master440 = getTags(mDict[key], '440')
+        master440st = stringFormDict(master440)
+
+        local490 = getTags(lDict[key], '490')
+        local490st = stringFormDict(local490)
+        master490 = getTags(mDict[key], '490')
+        master490st = stringFormDict(master490)
+
+        local830 = getTags(lDict[key], '830')
+        local830st = stringFormDict(local830)
+        master830 = getTags(mDict[key], '830')
+        master830st = stringFormDict(master830)
 
         logString = 'List#: '+str(keyCounter)+'\nKey: '+str(key)+'\n\tLocal Sys#: '+str(lSysNumber)
         logString = logString+'\n\tOCLC Numbers:\n\t\tLocal: '+str(oclcNumberL)+'\n\t\tMaster: '+str(oclcNumberM)+'\n'
         logString = logString+'\n\tImprint (260):\n\t\tLocal :'+str(local260a)+'\n\t\tMaster: '+str(master260a)+'\n'
+        logString = logString+'\n\tSeries(440):\n\t\tLocal: \n\t\t'+local440st+'Master: \n\t\t'+master440st+'\n'
+        logString = logString+'\n\tSeries(490):\n\t\tLocal: \n\t\t'+local490st+'Master: \n\t\t'+master490st+'\n'
+        logString = logString+'\n\tSeries(830):\n\t\tLocal: \n\t\t'+local830st+'Master: \n\t\t'+master830st+'\n'
 
         logResult(str(keyCounter), logString)
 
