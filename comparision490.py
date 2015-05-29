@@ -203,9 +203,9 @@ def doSomething():
         logString = 'List#: '+str(keyCounter)+'\nKey: '+str(key)+'\n\tLocal Sys#: '+str(lSysNumber)
         logString = logString+'\n\tOCLC Numbers:\n\t\tLocal: '+str(oclcNumberL)+'\n\t\tMaster: '+str(oclcNumberM)+'\n'
         logString = logString+'\n\tImprint (260):\n\t\tLocal :'+str(local260a)+'\n\t\tMaster: '+str(master260a)+'\n'
-        logString = logString+'\n\tSeries(440):\n\t\tLocal: \n\t\t'+local440st+'Master: \n\t\t'+master440st+'\n'
-        logString = logString+'\n\tSeries(490):\n\t\tLocal: \n\t\t'+local490st+'Master: \n\t\t'+master490st+'\n'
-        logString = logString+'\n\tSeries(830):\n\t\tLocal: \n\t\t'+local830st+'Master: \n\t\t'+master830st+'\n'
+        logString = logString+'\n\tSeries(440):\n\t\tLocal: \n\t\t'+local440st+'Master: \n\t\t'+master440st
+        logString = logString+'\n\tSeries(490):\n\t\tLocal: \n\t\t'+local490st+'Master: \n\t\t'+master490st
+        logString = logString+'\n\tSeries(830):\n\t\tLocal: \n\t\t'+local830st+'Master: \n\t\t'+master830st
 
         logResult(str(keyCounter), logString)
 
