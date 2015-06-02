@@ -1,6 +1,17 @@
 from pymarc import *
 import json
 
+
+def checkForBreak():
+    """just checks if the function should break or not"""
+    goOn = 't'
+    goOn = input('Do you want to continue or break? Enter "n" to break. \n')
+
+    if goOn == 'n':
+        print('breaking!')
+        return True
+    else:
+        return False
 # open the local records
 def marc490(filename):
     marcFile = str(filename)
@@ -80,6 +91,84 @@ def compareKeyNotInList(localList, masterList):
             keysInLocalandNotMaster.append(a)
 
     return keysInLocalandNotMaster
+
+def getDictKey(dict):
+    """returns key of the dictionary"""
+    dictKey = ''
+    for d in dict:
+        # print(d)
+        for key in d:
+            # print(key)
+            dictKey = str(key)
+        # print (dictKey)
+
+    return dictKey
+
+def getSubfieldList(dict, dictKey):
+
+    subfieldList = []
+    for ser in dict:
+        for subfield in ser[dictKey]['subfields']:
+            for key in subfield:
+                # print(key)
+                if key not in subfieldList:
+                    subfieldList.append(key)
+    # print('subfieldList is: ', subfieldList)
+    return subfieldList
+
+def extractCompare(partDict, masterDict):
+
+    masterDictKey = getDictKey(masterDict)
+    masterDictSubfieldList = getSubfieldList(masterDict, masterDictKey)
+
+    match = False
+
+    for series in masterDict:
+        tempMasterDict = {}
+        for dict in series[masterDictKey]['subfields']:
+            # print('testSeries = ', partDict, 'compared to: ', dict)
+
+            for key in masterDictSubfieldList:
+                try:
+                    if key != '5':
+                        # print(key, dict[key])
+                        tempMasterDict[key] = dict[key]
+                except KeyError:
+                    pass
+        print('testSeries = ', partDict, 'compared to: ', tempMasterDict)
+        if tempMasterDict == partDict:
+            match = True
+
+    return match
+
+def simpleCompare(localDict, MasterDict):
+    """does a simple comparisions between provided dictionary of local records for a given tag to those in the same
+    same tag for the master record"""
+
+    keyInDict = getDictKey(localDict)
+
+    print('keyInDict is: ', keyInDict)
+
+    subfieldList = getSubfieldList(localDict, keyInDict)
+
+    compDict = {}
+    for ser in localDict:
+        for dict in ser[keyInDict]['subfields']:
+            # print(dict)
+            for key in subfieldList:
+                try:
+                    if key != '5':
+                        # print(key, dict[key])
+                        compDict[key] = dict[key]
+                except KeyError:
+                    pass
+        seriesInMaster = extractCompare(compDict, MasterDict)
+        print(compDict, seriesInMaster)
+
+
+        stop = checkForBreak()
+        if stop:
+            return
 
 def getTags(keyDict, tagID):
     """replaces getTagValues by getting the entire set of data for a given tag"""
