@@ -156,8 +156,15 @@ def stringFormDict(tagSet):
     """given a tag set in dictionary form, returns the strings ready for printing"""
 
     tagSetStr = ''
+    lenTS = len(tagSet)
+    # print(lenTS)
+    tsCounter = 0
     for line in tagSet:
-        tagSetStr = tagSetStr+json.dumps(line)+'\n\t\t'
+        tagSetStr = tagSetStr+json.dumps(line)
+        tsCounter += 1
+        if tsCounter < lenTS:
+            tagSetStr = tagSetStr+'\n\t\t'
+        # print(tsCounter)
 
     return tagSetStr
 
@@ -201,11 +208,11 @@ def doSomething():
         master830st = stringFormDict(master830)
 
         logString = 'List#: '+str(keyCounter)+'\nKey: '+str(key)+'\n\tLocal Sys#: '+str(lSysNumber)
-        logString = logString+'\n\tOCLC Numbers:\n\t\tLocal: '+str(oclcNumberL)+'\n\t\tMaster: '+str(oclcNumberM)+'\n'
-        logString = logString+'\n\tImprint (260):\n\t\tLocal :'+str(local260a)+'\n\t\tMaster: '+str(master260a)+'\n'
-        logString = logString+'\n\tSeries(440):\n\t\tLocal: \n\t\t'+local440st+'Master: \n\t\t'+master440st
-        logString = logString+'\n\tSeries(490):\n\t\tLocal: \n\t\t'+local490st+'Master: \n\t\t'+master490st
-        logString = logString+'\n\tSeries(830):\n\t\tLocal: \n\t\t'+local830st+'Master: \n\t\t'+master830st
+        logString = logString+'\n\tOCLC Numbers:\n\t\tLocal: '+str(oclcNumberL)+'\n\t\tMaster: '+str(oclcNumberM)
+        logString = logString+'\n\tImprint (260):\n\t\tLocal :'+str(local260a)+'\n\t\tMaster: '+str(master260a)
+        logString = logString+'\n\tSeries(440): \n\t\tLocal: \n\t\t'+local440st+'\n\t\tMaster: \n\t\t'+master440st
+        logString = logString+'\n\tSeries(490):\n\t\tLocal: \n\t\t'+local490st+'\n\t\tMaster: \n\t\t'+master490st
+        logString = logString+'\n\tSeries(830):\n\t\tLocal: \n\t\t'+local830st+'\n\t\tMaster: \n\t\t'+master830st
 
         logResult(str(keyCounter), logString)
 
@@ -217,6 +224,12 @@ def doSomething():
         #           )
         # except UnicodeEncodeError:
         #     print('List#: '+str(keyCounter)+' had error in writing')
+
+        goOn = 't'
+        # goOn = input('Continue? To stop enter "n"\n')
+        if goOn == 'n':
+            break
+
         keyCounter += 1
     print('... DONE!')
 
