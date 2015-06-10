@@ -104,6 +104,16 @@ def getDictKey(dict):
 
     return dictKey
 
+def dictValStrip(dictVal):
+    r = [' ', ',', '.', '[', ']']
+
+    dictVal = dictVal
+    for thing in r:
+        dictVal = dictVal.replace(thing, '')
+
+    return dictVal
+
+
 def getSubfieldList(dict, dictKey):
 
     subfieldList = []
@@ -123,6 +133,7 @@ def extractCompare(partDict, masterDict):
 
     match = False
 
+
     for series in masterDict:
         tempMasterDict = {}
         for dict in series[masterDictKey]['subfields']:
@@ -132,10 +143,11 @@ def extractCompare(partDict, masterDict):
                 try:
                     if key != '5':
                         # print(key, dict[key])
-                        tempMasterDict[key] = dict[key]
+                        dictVal = dictValStrip(dict[key])
+                        tempMasterDict[key] = dictVal
                 except KeyError:
                     pass
-        print('testSeries = ', partDict, 'compared to: ', tempMasterDict)
+        # print('testSeries = testSeries', partDict, 'compared to: ', tempMasterDict)
         if tempMasterDict == partDict:
             match = True
 
@@ -147,10 +159,10 @@ def simpleCompare(localDict, MasterDict):
 
     keyInDict = getDictKey(localDict)
 
-    print('keyInDict is: ', keyInDict)
+    # print('keyInDict is: ', keyInDict)
 
     subfieldList = getSubfieldList(localDict, keyInDict)
-
+    compareresultList = []
     compDict = {}
     for ser in localDict:
         for dict in ser[keyInDict]['subfields']:
@@ -159,16 +171,20 @@ def simpleCompare(localDict, MasterDict):
                 try:
                     if key != '5':
                         # print(key, dict[key])
-                        compDict[key] = dict[key]
+                        dictVal = dictValStrip(dict[key])
+                        compDict[key] = dictVal
                 except KeyError:
                     pass
         seriesInMaster = extractCompare(compDict, MasterDict)
-        print(compDict, seriesInMaster)
+        # print(compDict, seriesInMaster)
+        result = str(compDict)+' '+str(seriesInMaster)
+        compareresultList.append(result)
+    return compareresultList
 
 
-        stop = checkForBreak()
-        if stop:
-            return
+        # stop = checkForBreak()
+        # if stop:
+        #     return
 
 def getTags(keyDict, tagID):
     """replaces getTagValues by getting the entire set of data for a given tag"""
@@ -296,12 +312,24 @@ def doSomething():
         master830 = getTags(mDict[key], '830')
         master830st = stringFormDict(master830)
 
+        # compare local 440 to master 830
+        compareResult = simpleCompare(local440, master830)
+        if compareResult is None:
+            compResult = 'None'
+        else:
+            compResult = ''
+            for c in compareResult:
+                compResult = compResult+c+'\n\t\t'
+        # print(compareResult)
+
+
         logString = 'List#: '+str(keyCounter)+'\nKey: '+str(key)+'\n\tLocal Sys#: '+str(lSysNumber)
         logString = logString+'\n\tOCLC Numbers:\n\t\tLocal: '+str(oclcNumberL)+'\n\t\tMaster: '+str(oclcNumberM)
         logString = logString+'\n\tImprint (260):\n\t\tLocal :'+str(local260a)+'\n\t\tMaster: '+str(master260a)
         logString = logString+'\n\tSeries(440): \n\t\tLocal: \n\t\t'+local440st+'\n\t\tMaster: \n\t\t'+master440st
         logString = logString+'\n\tSeries(490):\n\t\tLocal: \n\t\t'+local490st+'\n\t\tMaster: \n\t\t'+master490st
         logString = logString+'\n\tSeries(830):\n\t\tLocal: \n\t\t'+local830st+'\n\t\tMaster: \n\t\t'+master830st
+        logString = logString+'\n\tLocal 440 tag found in 830 Master:\n\t\t'+compResult
 
         logResult(str(keyCounter), logString)
 
