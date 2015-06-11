@@ -1,6 +1,6 @@
 from pymarc import *
 import json
-
+import time
 
 def checkForBreak():
     """just checks if the function should break or not"""
@@ -105,7 +105,10 @@ def getDictKey(dict):
     return dictKey
 
 def dictValStrip(dictVal):
-    r = [' ', ',', '.', '[', ']']
+    """Strips the specified strings/characters prior to comparison. Note that the order matters because if you strip the
+    leading spaces prior to the words with trailing spaces, it won't find the words."""
+
+    r = ['the ', 'A ', 'a ', 'The ', ';', ' ', ',', '.', '[', ']']
 
     dictVal = dictVal
     for thing in r:
@@ -248,6 +251,14 @@ def getTagValues(keyDict, tagID, subfield):
 
     return resultTagValue
 
+def logStartEnd(now):
+    testinglogFile = 'testinglogFile.txt'
+    with open(testinglogFile, 'a') as log:
+        try:
+            log.write(now)
+        except UnicodeEncodeError:
+            log.write('\n'+'failed to write record key: '+str(recordKey)+'\n')
+
 def logResult(recordKey, logString):
 
     testinglogFile = 'testinglogFile.txt'
@@ -273,7 +284,13 @@ def stringFormDict(tagSet):
 
     return tagSetStr
 
-def doSomething():
+def runComparison():
+
+    now = time.strftime('%Y-%m-%d %H:%M:%S')
+    now = 'starting at: '+str(now)
+    logStartEnd(now)
+    print(now)
+
 
 # Create dictionaries from the local and master marc files
     print('\nbuilding dictionaries...')
@@ -322,7 +339,6 @@ def doSomething():
                 compResult = compResult+c+'\n\t\t'
         # print(compareResult)
 
-
         logString = 'List#: '+str(keyCounter)+'\nKey: '+str(key)+'\n\tLocal Sys#: '+str(lSysNumber)
         logString = logString+'\n\tOCLC Numbers:\n\t\tLocal: '+str(oclcNumberL)+'\n\t\tMaster: '+str(oclcNumberM)
         logString = logString+'\n\tImprint (260):\n\t\tLocal :'+str(local260a)+'\n\t\tMaster: '+str(master260a)
@@ -348,9 +364,15 @@ def doSomething():
             break
 
         keyCounter += 1
+
+    now = time.strftime('%Y-%m-%d %H:%M:%S')
+    now = 'finished at: '+str(now)
+    logStartEnd(now)
+    print(now)
+
     print('... DONE!')
 
-
+runComparison()
 
 
 
