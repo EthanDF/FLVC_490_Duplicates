@@ -9,13 +9,13 @@ def getBib(marc):
         bib = None
     return bib
 
-def writeToOCLCNumList(bib, oclcNumber):
+def writeToOCLCNumList(bib, oclcNumber, format):
     """writes to a log file the BIB and OCLC number of a record found to be an OCLC number"""
     oclcFile = 'oclc_numbers.csv'
 
     import time
     now = time.strftime('%Y-%m-%d %H:%M:%S')
-    data = [[now, str(bib), str(oclcNumber)]]
+    data = [[now, str(bib), str(oclcNumber), str(format)]]
     # print(data)
 
     with open(oclcFile, 'a', newline='') as out:
@@ -48,8 +48,9 @@ def getControlNumber(record):
 
     if oclcYes == 1:
         bib = getBib(record)
+        format = returnFormat(record)
         oclcNumber = record['035']['a']
-        writeToOCLCNumList(bib, oclcNumber)
+        writeToOCLCNumList(bib, oclcNumber, format)
 
 #   the original part of this call - just checks for OCLC Number and does the print out
     for o in record.get_fields('035'):
@@ -168,9 +169,13 @@ def marc490():
             oclc = getControlNumber(record).strip()
             if oclc is None:
                 oclc = 'None'
+
+            # There is a suggestion that electronic records should be excluded from the results of this script
+
             format = returnFormat(record)
             if format is None:
                 format = 'None'
+
             values440 = has440(record)
             values490 = has490(record)
             if record['STA'] == None:
@@ -242,4 +247,4 @@ def marc490():
             # if goOn == 'n':
             #     return record
 
-# marc490()
+marc490()
