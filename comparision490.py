@@ -116,6 +116,26 @@ def dictValStrip(dictVal):
 
     return dictVal
 
+def returnFormat(dict):
+
+    # extract the code from the 008 23 values
+    formatCode = 'None'
+    for tag in dict['fields']:
+        for k in tag:
+            if k == '008':
+                formatCode = tag[k][23:24]
+
+    format = ''
+    if formatCode in ['s', 'o', 'q']:
+        format = 'electronic'
+    elif formatCode in [' ', 'r', 'd']:
+        format = 'print'
+    elif formatCode in ['a', 'b', 'c']:
+        format = 'microform'
+    else:
+        format = 'unknown'
+
+    return format
 
 def getSubfieldList(dict, dictKey):
 
@@ -310,8 +330,17 @@ def runComparison():
     keyCounter = 0
     for key in aKeys:
         lSysNumber = getTagValues(lDict[key], '001', None)
+
         oclcNumberL = getTagValues(lDict[key], '035', 'a')
         oclcNumberM = getTagValues(mDict[key], '035', 'a')
+
+        # Return Formats
+        lFormat = returnFormat(lDict[key])
+        mFormat = returnFormat(mDict[key])
+        matchFormat = False
+        if lFormat == mFormat:
+            matchFormat = True
+
         local260a = getTagValues(lDict[key], '260', 'a')
         master260a = getTagValues(mDict[key], '260', 'a')
         local440 = getTags(lDict[key], '440')
@@ -340,7 +369,14 @@ def runComparison():
         # print(compareResult)
 
         logString = 'List#: '+str(keyCounter)+'\nKey: '+str(key)+'\n\tLocal Sys#: '+str(lSysNumber)
+
+        # add oclc numbers
         logString = logString+'\n\tOCLC Numbers:\n\t\tLocal: '+str(oclcNumberL)+'\n\t\tMaster: '+str(oclcNumberM)
+
+        # add formats
+        logString = logString+'\n\tFormats (008 23): Formats Match?: '+str(matchFormat)
+        logString = logString+'\n\t\tLocal: '+str(lFormat)+'\n\t\tMaster: '+str(mFormat)
+
         logString = logString+'\n\tImprint (260):\n\t\tLocal :'+str(local260a)+'\n\t\tMaster: '+str(master260a)
         logString = logString+'\n\tSeries(440): \n\t\tLocal: \n\t\t'+local440st+'\n\t\tMaster: \n\t\t'+master440st
         logString = logString+'\n\tSeries(490):\n\t\tLocal: \n\t\t'+local490st+'\n\t\tMaster: \n\t\t'+master490st
@@ -358,10 +394,10 @@ def runComparison():
         # except UnicodeEncodeError:
         #     print('List#: '+str(keyCounter)+' had error in writing')
 
-        goOn = 't'
-        # goOn = input('Continue? To stop enter "n"\n')
-        if goOn == 'n':
-            break
+        stop = False
+        # stop = checkForBreak()
+        if stop:
+            return
 
         keyCounter += 1
 
