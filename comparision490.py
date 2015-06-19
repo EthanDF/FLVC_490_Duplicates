@@ -339,7 +339,10 @@ def runComparison():
         mFormat = returnFormat(mDict[key])
         matchFormat = False
         if lFormat == mFormat:
-            matchFormat = True
+            if lFormat.upper() == "UNKNOWN":
+                lFormat = "Unknown"
+            else:
+                matchFormat = True
 
         local260a = getTagValues(lDict[key], '260', 'a')
         master260a = getTagValues(mDict[key], '260', 'a')
