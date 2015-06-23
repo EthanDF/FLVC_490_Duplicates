@@ -152,6 +152,7 @@ def getSubfieldList(dict, dictKey):
 def extractCompare(partDict, masterDict):
 
     masterDictKey = getDictKey(masterDict)
+
     masterDictSubfieldList = getSubfieldList(masterDict, masterDictKey)
 
     match = False
@@ -200,7 +201,10 @@ def simpleCompare(localDict, MasterDict):
                     pass
         seriesInMaster = extractCompare(compDict, MasterDict)
         # print(compDict, seriesInMaster)
-        result = str(compDict)+' '+str(seriesInMaster)
+        result = []
+        result.append(str(compDict))
+        result.append(seriesInMaster)
+        # result = str(compDict)+' '+str(seriesInMaster)
         compareresultList.append(result)
     return compareresultList
 
@@ -363,11 +367,15 @@ def runComparison():
 
         # compare local 440 to master 830
         compareResult = simpleCompare(local440, master830)
-        if compareResult is None:
+        compareResult1 = []
+        if compareResult is None or len(compareResult) == 0:
             compResult = 'None'
         else:
             compResult = ''
-            for c in compareResult:
+            for r in compareResult:
+                compareResult1.append(str(r[0])+' '+str(r[1]))
+
+            for c in compareResult1:
                 compResult = compResult+c+'\n\t\t'
         # print(compareResult)
 
@@ -411,8 +419,77 @@ def runComparison():
 
     print('... DONE!')
 
-runComparison()
+# runComparison()
 
+def returnlocal440List(local440):
+    """Only works for 440... returns the subfields in a list"""
+
+    local440L = []
+    for a in local440:
+        local440L.append(a['440']['subfields'])
+
+    return local440L
+
+def localCheck():
+    now = time.strftime('%Y-%m-%d %H:%M:%S')
+    now = 'starting at: '+str(now)
+    # logStartEnd(now)
+    print(now)
+
+
+# Create dictionaries from the local and master marc files
+    print('\nbuilding dictionaries...')
+    lDict = marc490('10k.mrc')
+    mDict = marc490('490OCLC.mrc')
+    print('... DONE!')
+
+# Gets list of keys from the 2 dictionaries, and a third list of common keys
+    print('\nbuilding lists...')
+    lKeys = returnKeyList(lDict)
+    mKeys = returnKeyList(mDict)
+    aKeys = compareKeyList(lKeys, mKeys)
+    print('... DONE!')
+
+# return, for comparison the two OCLC numbers in the records
+    print('\ncomparing results and writing to log')
+    keyCounter = 0
+    for key in aKeys:
+        lSysNumber = getTagValues(lDict[key], '001', None)
+        oclcNumberL = getTagValues(lDict[key], '035', 'a')
+
+        local440 = getTags(lDict[key], '440')
+        local440st = stringFormDict(local440)
+
+        if local440st is None:
+            continue
+
+        local490 = getTags(lDict[key], '490')
+        local830 = getTags(lDict[key], '830')
+
+        localCombined = []
+        for a in local490:
+            localCombined.append(a)
+        for a in local830:
+            localCombined.append(a)
+
+        #compare the 440s to the combined list
+        compareResult = simpleCompare(local440, localCombined)
+
+        local440List = returnlocal440List(local440)
+
+        listItem = 0
+        print(keyCounter)
+        for result in compareResult:
+            if result[1] is False:
+                print(str(keyCounter)+', '+str(lSysNumber)+', '+str(oclcNumberL)+', '+str(local440List[listItem]))
+
+
+        stop = False
+        stop = checkForBreak()
+        if stop:
+            return
+
+        keyCounter += 1
 
 
 
