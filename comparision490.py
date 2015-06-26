@@ -492,23 +492,47 @@ def localCheck():
         local490 = getTags(lDict[key], '490')
         local830 = getTags(lDict[key], '830')
 
-        localCombined = []
-        for a in local490:
-            localCombined.append(a)
-        for a in local830:
-            localCombined.append(a)
+    # This was a failed idea
+        # localCombined = []
+        # for a in local490:
+        #     localCombined.append(a)
+        # for a in local830:
+        #     localCombined.append(a)
 
         #compare the 440s to the combined list
-        compareResult = simpleCompare(local440, localCombined)
+        # compareResult = simpleCompare(local440, localCombined)
 
-        local440List = returnlocal440List(local440)
+        # local440List = returnlocal440List(local440)
 
-        listItem = 0
-        print(keyCounter)
-        for result in compareResult:
-            if result[1] is False:
-                print(str(keyCounter)+', '+str(lSysNumber)+', '+str(oclcNumberL)+', '+str(local440List[listItem]))
+        # listItem = 0
+        # print(keyCounter)
+        # for result in compareResult:
+        #     if result[1] is False:
+        #         print(str(keyCounter)+', '+str(lSysNumber)+', '+str(oclcNumberL)+', '+str(local440List[listItem]))
 
+    #End failed idea
+
+        l440 = returnString(local440, '440')
+        l440a = stringValStrip(l440)
+
+        l490 = returnString(local490, '490')
+        l490a = stringValStrip(l490)
+
+        l830 = returnString(local830, '830')
+        l830a = stringValStrip(l830)
+
+        seriesFound = False
+        for a in l440a:
+            for b in l490a:
+                print(a, b, a == b)
+                if a == b:
+                    seriesFound = True
+            if seriesFound == False:
+                for b in l830a:
+                    print(a, b, a == b)
+                    if a == b:
+                        seriesFound = True
+            print('seriesFound: ', a, seriesFound)
 
         stop = False
         stop = checkForBreak()
