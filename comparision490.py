@@ -1,6 +1,7 @@
 from pymarc import *
 import json
 import time
+import csv
 
 def checkForBreak():
     """just checks if the function should break or not"""
@@ -447,6 +448,27 @@ def returnString(d, dictKey):
 
     return strList
 
+def writeLocalCheckResults(resultList, lSysNumber):
+
+    y = []
+    x = []
+    for a in resultList:
+        if len(a) > 0:
+            x.append(a)
+
+    y.append(x)
+
+    localResultCheck = 'localResultLog.csv'
+
+    # print(x)
+
+    with open(localResultCheck, 'a', newline='') as out:
+        a = csv.writer(out, delimiter=',', quoting=csv.QUOTE_ALL)
+        try:
+            a.writerows(y)
+        except (UnicodeDecodeError, UnicodeEncodeError):
+            print("error writing system number ", lSysNumber)
+
 def returnlocal440List(local440):
     """Only works for 440... returns the subfields in a list"""
 
@@ -455,6 +477,58 @@ def returnlocal440List(local440):
         local440L.append(a['440']['subfields'])
 
     return local440L
+
+def compare440to490to830(lSysNumber, oclcNumberL, local440, local490, local830):
+
+    stop = False
+
+    l440 = returnString(local440, '440')
+    l440a = stringValStrip(l440)
+
+    l490 = returnString(local490, '490')
+    l490a = stringValStrip(l490)
+
+    l830 = returnString(local830, '830')
+    l830a = stringValStrip(l830)
+
+    resultList = []
+    # for x in l440:
+    #     print('checking ', x)
+    counter440 = 0
+    for a in l440a:
+        # print('checking ', a)
+        seriesFound = False
+        tempList = []
+        for b in l490a:
+            # print(a, b, a == b)
+            if a == b:
+                seriesFound = True
+                # print('seriesFound!')
+            if seriesFound == False:
+                for b in l830a:
+                    # print(a, b, a == b)
+                    if a == b:
+                        seriesFound = True
+                        # print('seriesFound!')
+            # print('seriesFound: ', a, seriesFound)
+            # print(tempList)
+        # print(seriesFound)
+        # input('waiting...')
+        if seriesFound == False:
+            tempList.append(lSysNumber)
+            tempList.append(oclcNumberL)
+            tempList.append(local440[counter440])
+            # tempList.append(seriesFound)
+        # print(tempList)
+        resultList.append(tempList)
+        counter440 =+ 1
+
+        # stop = checkForBreak()
+        if stop:
+            return
+
+    return resultList
+
 
 def localCheck():
     now = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -492,55 +566,24 @@ def localCheck():
         local490 = getTags(lDict[key], '490')
         local830 = getTags(lDict[key], '830')
 
-    # This was a failed idea
-        # localCombined = []
-        # for a in local490:
-        #     localCombined.append(a)
-        # for a in local830:
-        #     localCombined.append(a)
+        comparisonResults = []
+        comparisonResults = compare440to490to830(lSysNumber, oclcNumberL, local440, local490, local830)
+        for a in comparisonResults:
+            if len(a) > 0:
+                writeLocalCheckResults(a, lSysNumber)
 
-        #compare the 440s to the combined list
-        # compareResult = simpleCompare(local440, localCombined)
-
-        # local440List = returnlocal440List(local440)
-
-        # listItem = 0
-        # print(keyCounter)
-        # for result in compareResult:
-        #     if result[1] is False:
-        #         print(str(keyCounter)+', '+str(lSysNumber)+', '+str(oclcNumberL)+', '+str(local440List[listItem]))
-
-    #End failed idea
-
-        l440 = returnString(local440, '440')
-        l440a = stringValStrip(l440)
-
-        l490 = returnString(local490, '490')
-        l490a = stringValStrip(l490)
-
-        l830 = returnString(local830, '830')
-        l830a = stringValStrip(l830)
-
-        seriesFound = False
-        for a in l440a:
-            for b in l490a:
-                print(a, b, a == b)
-                if a == b:
-                    seriesFound = True
-            if seriesFound == False:
-                for b in l830a:
-                    print(a, b, a == b)
-                    if a == b:
-                        seriesFound = True
-            print('seriesFound: ', a, seriesFound)
 
         stop = False
-        stop = checkForBreak()
+        # stop = checkForBreak()
         if stop:
             return
 
         keyCounter += 1
 
+    now = time.strftime('%Y-%m-%d %H:%M:%S')
+    now = 'finishing at: '+str(now)
+    # logStartEnd(now)
+    print(now)
 
 
 
