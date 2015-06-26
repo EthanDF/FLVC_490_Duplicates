@@ -116,6 +116,18 @@ def dictValStrip(dictVal):
 
     return dictVal
 
+def stringValStrip(listString):
+    r = ['the ', 'A ', 'a ', 'The ', ';', ' ', ',', '.', '[', ']']
+
+    afterListItem = []
+    for listItem in listString:
+        for thing in r:
+            listItem = listItem.replace(thing, '')
+
+        afterListItem.append(listItem)
+
+    return afterListItem
+
 def returnFormat(dict):
 
     # extract the code from the 008 23 values
@@ -420,6 +432,20 @@ def runComparison():
     print('... DONE!')
 
 # runComparison()
+
+def returnString(d, dictKey):
+    """returns a list of strings based on a provided list with dictionaries and key of dictionary"""
+
+    strList = []
+    for sub in d:
+        strResult = ''
+        for di in sub[dictKey]['subfields']:
+            for key in di:
+                if key != '5':
+                    strResult = strResult + str(key)+': '+str(di[key])+' | '
+        strList.append((strResult))
+
+    return strList
 
 def returnlocal440List(local440):
     """Only works for 440... returns the subfields in a list"""
