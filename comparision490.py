@@ -466,8 +466,10 @@ def writeLocalCheckResults(resultList, lSysNumber):
         a = csv.writer(out, delimiter=',', quoting=csv.QUOTE_ALL)
         try:
             a.writerows(y)
-        except (UnicodeDecodeError, UnicodeEncodeError):
-            print("error writing system number ", lSysNumber)
+        except UnicodeEncodeError:
+            print("error Encoding: system number ", lSysNumber)
+        except UnicodeDecodeError:
+            print("error Decoding: system number ", lSysNumber)
 
 def returnlocal440List(local440):
     """Only works for 440... returns the subfields in a list"""
