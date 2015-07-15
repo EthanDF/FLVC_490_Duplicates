@@ -118,12 +118,19 @@ def dictValStrip(dictVal):
     return dictVal
 
 def stringValStrip(listString):
-    r = ['the ', 'A ', 'a ', 'The ', ';', ' ', ',', '.', '[', ']']
+    arts = ['the', 'a', 'an', 'el', 'los', 'la', 'las', 'un', 'unos', 'una', 'unas', 'le', 'la', 'l’', 'les', 'un',
+            'une', 'des']
+
+    punct = [';', ' ', ',', '.', '[', ']', '<', '>']
 
     afterListItem = []
     for listItem in listString:
-        for thing in r:
-            listItem = listItem.replace(thing, '')
+        #replace articles from list arts, split each word into the list and see if that word is in the arts list - if so remove it, then recomplile into a string.
+        llist = listItem.split(' ')
+        for word in llist:
+            for thing in arts:
+                if str(thing).lower() == word.lower():
+                    llist.pop(thing)
 
         afterListItem.append(listItem)
 
