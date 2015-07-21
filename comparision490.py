@@ -121,18 +121,34 @@ def stringValStrip(listString):
     arts = ['the', 'a', 'an', 'el', 'los', 'la', 'las', 'un', 'unos', 'una', 'unas', 'le', 'la', 'l’', 'les', 'un',
             'une', 'des']
 
-    punct = [';', ' ', ',', '.', '[', ']', '<', '>']
+    punct = [';', ' ', ',', '.', '[', ']', '<', '>', '|']
+
 
     afterListItem = []
     for listItem in listString:
+        tempafterListItem = []
         #replace articles from list arts, split each word into the list and see if that word is in the arts list - if so remove it, then recomplile into a string.
         llist = listItem.split(' ')
-        for word in llist:
-            for thing in arts:
-                if str(thing).lower() == word.lower():
-                    llist.pop(thing)
+        # print(llist)
+        for w in llist:
+            if w == 'v:':
+                break
+            if w not in arts and w not in punct:
+                tempafterListItem.append(w)
+        # print(tempafterListItem)
 
-        afterListItem.append(listItem)
+        # input('paused')
+
+        # for word in tempafterListItem:
+        #     if word in arts or word in punct:
+        #         print("found ", word)
+        #         tempafterListItem.remove(word)
+        #     # if word in punct:
+        #     #     tempafterListItem.remove(word)
+
+        stTempAfterListItem = " ".join(tempafterListItem)
+
+        afterListItem.append(stTempAfterListItem)
 
     return afterListItem
 
