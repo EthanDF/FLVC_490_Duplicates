@@ -610,6 +610,157 @@ def localCheck():
     # logStartEnd(now)
     print(now)
 
+def betterComparison(lista, listb, listc, listd, liste):
+
+    unfoundSeriesStringList = []
+
+    for series in lista:
+        if series in listb:
+            print("found")
+            break
+        if series in listc:
+            print("found")
+            break
+        if series in listd:
+            print("found")
+            break
+        if series in liste:
+            print("found")
+            break
+
+        unfoundSeriesStringList.append(series)
+
+    return unfoundSeriesStringList
+
+def betterCheck():
+
+    now = time.strftime('%Y-%m-%d %H:%M:%S')
+    now = 'starting at: '+str(now)
+    logStartEnd(now)
+    print(now)
 
 
+# Create dictionaries from the local and master marc files
+    print('\nbuilding dictionaries...')
+    lDict = marc490('10k.mrc')
+    mDict = marc490('490OCLC.mrc')
+    print('... DONE!')
 
+# Gets list of keys from the 2 dictionaries, and a third list of common keys
+    print('\nbuilding lists...')
+    lKeys = returnKeyList(lDict)
+    mKeys = returnKeyList(mDict)
+    aKeys = compareKeyList(lKeys, mKeys)
+    print('... DONE!')
+
+# return, for comparison the two OCLC numbers in the records
+    print('\ncomparing results and writing to log')
+    keyCounter = 0
+    for key in aKeys:
+        lSysNumber = getTagValues(lDict[key], '001', None)
+
+        oclcNumberL = getTagValues(lDict[key], '035', 'a')
+        oclcNumberM = getTagValues(mDict[key], '035', 'a')
+
+        # Return Formats
+        lFormat = returnFormat(lDict[key])
+        mFormat = returnFormat(mDict[key])
+        matchFormat = False
+        if lFormat == mFormat:
+            if lFormat.upper() == "UNKNOWN":
+                lFormat = "Unknown"
+            else:
+                matchFormat = True
+
+        local260a = getTagValues(lDict[key], '260', 'a')
+        master260a = getTagValues(mDict[key], '260', 'a')
+        local440 = getTags(lDict[key], '440')
+        local440st = stringFormDict(local440)
+        master440 = getTags(mDict[key], '440')
+        master440st = stringFormDict(master440)
+
+        local490 = getTags(lDict[key], '490')
+        local490st = stringFormDict(local490)
+        master490 = getTags(mDict[key], '490')
+        master490st = stringFormDict(master490)
+
+        local830 = getTags(lDict[key], '830')
+        local830st = stringFormDict(local830)
+        master830 = getTags(mDict[key], '830')
+        master830st = stringFormDict(master830)
+
+        #Begin logging protocol
+        logString = 'List#: '+str(keyCounter)+'\nKey: '+str(key)+'\n\tLocal Sys#: '+str(lSysNumber)
+
+        # add oclc numbers
+        logString = logString+'\n\tOCLC Numbers:\n\t\tLocal: '+str(oclcNumberL)+'\n\t\tMaster: '+str(oclcNumberM)
+
+        # add formats
+        logString = logString+'\n\tFormats (008 23): Formats Match?: '+str(matchFormat)
+        logString = logString+'\n\t\tLocal: '+str(lFormat)+'\n\t\tMaster: '+str(mFormat)
+
+        logString = logString+'\n\tImprint (260):\n\t\tLocal :'+str(local260a)+'\n\t\tMaster: '+str(master260a)
+        logString = logString+'\n\tSeries(440): \n\t\tLocal: \n\t\t'+local440st+'\n\t\tMaster: \n\t\t'+master440st
+        logString = logString+'\n\tSeries(490):\n\t\tLocal: \n\t\t'+local490st+'\n\t\tMaster: \n\t\t'+master490st
+        logString = logString+'\n\tSeries(830):\n\t\tLocal: \n\t\t'+local830st+'\n\t\tMaster: \n\t\t'+master830st
+
+
+        ######THIS BIT IS THE SHINY NEW COMPARISON STRUCTURE!
+
+        #get string versions of the lists in each field
+        l440 = returnString(local440, '440')
+        l440 = stringValStrip(l440)
+
+        l490 = returnString(local490, '490')
+        l490 = stringValStrip(l490)
+
+        l830 = returnString(local830, '830')
+        l830 = stringValStrip(l830)
+
+        m490 = returnString(master490, '490')
+        m490 = stringValStrip(m490)
+
+        m830 = returnString(master830, '830')
+        m830 = stringValStrip(m830)
+
+        #for troubleshooting, log the comparision strings
+        logString = logString+'\n\tComparison Strings:'
+        logString = logString+'\n\t\tlocal440: '+str(l440)
+        logString = logString+'\n\t\tlocal490: '+str(l490)
+        logString = logString+'\n\t\tlocal830: '+str(l830)
+        logString = logString+'\n\t\tmaster490: '+str(m490)
+        logString = logString+'\n\t\tmaster830: '+str(m830)
+
+        #Do the actual comparison!
+
+        compResult = betterComparison(l440, l490, l830, m490, m830)
+        compResultString = ''
+        if len(compResult) == 0:
+            compResultString = 'None'
+        else:
+            for result in compResult:
+                compResultString = compResultString+result+'\n'
+
+        logString = logString+'\n\tComparison Strings Not Found:'+'\n\t\t'+compResultString
+
+
+        #######################################################
+
+        # logString = logString+'\n\tLocal 440 tag found in 830 Master:\n\t\t'+compResult
+
+        logResult(str(keyCounter), logString)
+
+
+        stop = False
+        stop = checkForBreak()
+        if stop:
+            return
+
+        keyCounter += 1
+
+    now = time.strftime('%Y-%m-%d %H:%M:%S')
+    now = 'finished at: '+str(now)
+    logStartEnd(now)
+    print(now)
+
+    print('... DONE!')
