@@ -121,7 +121,7 @@ def stringValStrip(listString):
     arts = ['the', 'a', 'an', 'el', 'los', 'la', 'las', 'un', 'unos', 'una', 'unas', 'le', 'la', 'l’', 'les', 'un',
             'une', 'des']
 
-    punct = [';', ' ', ',', '.', '[', ']', '<', '>', '|']
+    punct = [';', ',', '.', '[', ']', '<', '>', '|']
 
 
     afterListItem = []
@@ -133,7 +133,7 @@ def stringValStrip(listString):
         for w in llist:
             if w == 'v:':
                 break
-            if w not in arts and w not in punct:
+            if w.upper() not in [x.upper() for x in arts] and w not in punct:
                 tempafterListItem.append(w)
         # print(tempafterListItem)
 
@@ -148,8 +148,18 @@ def stringValStrip(listString):
 
         stTempAfterListItem = " ".join(tempafterListItem)
 
+        # strip out any punctuation
+
+        stTempAfterListItem2 = ''
+        for letter in stTempAfterListItem:
+            if letter not in punct:
+                stTempAfterListItem2 = stTempAfterListItem2+letter
+
+        stTempAfterListItem = stTempAfterListItem2.strip()
+
         afterListItem.append(stTempAfterListItem)
 
+    # print(afterListItem)
     return afterListItem
 
 def returnFormat(dict):
@@ -616,17 +626,17 @@ def betterComparison(lista, listb, listc, listd, liste):
 
     for series in lista:
         if series in listb:
-            print("found")
-            break
+            # print("found")
+            continue
         if series in listc:
-            print("found")
-            break
+            # print("found")
+            continue
         if series in listd:
-            print("found")
-            break
+            # print("found")
+            continue
         if series in liste:
-            print("found")
-            break
+            # print("found")
+            continue
 
         unfoundSeriesStringList.append(series)
 
@@ -739,7 +749,7 @@ def betterCheck():
             compResultString = 'None'
         else:
             for result in compResult:
-                compResultString = compResultString+result+'\n'
+                compResultString = 'Not Found!\n\t\t'+compResultString+result+'\n'
 
         logString = logString+'\n\tComparison Strings Not Found:'+'\n\t\t'+compResultString
 
@@ -752,7 +762,7 @@ def betterCheck():
 
 
         stop = False
-        stop = checkForBreak()
+        # stop = checkForBreak()
         if stop:
             return
 
