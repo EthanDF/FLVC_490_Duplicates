@@ -643,6 +643,30 @@ def betterComparison(lista, listb, listc, listd, liste):
 
     return unfoundSeriesStringList
 
+def checkSubFields(tagDictionary, key):
+    """Checks to see if the subfields in the local 440 are in the list
+    that would disqualify them from being local series
+    tagDictionary should be local440 """
+
+    localSeriesList = ['n', 'p', 'v', 'w', 'x', '0', '6', '8', '5']
+
+    subfieldContinue = True
+    subfieldList = []
+    for dict in tagDictionary:
+        for subDict in dict[key]['subfields']:
+            for k in subDict:
+                subfieldList.append(k)
+
+    for sf in subfieldList:
+        if sf in localSeriesList:
+            subfieldContinue = False
+            return subfieldContinue
+
+    return subfieldContinue
+
+
+
+
 def betterCheck():
 
     now = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -714,6 +738,8 @@ def betterCheck():
         logString = logString+'\n\tSeries(440): \n\t\tLocal: \n\t\t'+local440st+'\n\t\tMaster: \n\t\t'+master440st
         logString = logString+'\n\tSeries(490):\n\t\tLocal: \n\t\t'+local490st+'\n\t\tMaster: \n\t\t'+master490st
         logString = logString+'\n\tSeries(830):\n\t\tLocal: \n\t\t'+local830st+'\n\t\tMaster: \n\t\t'+master830st
+
+        ###Put in the check for subfield here: reference checkSubFields
 
 
         ######THIS BIT IS THE SHINY NEW COMPARISON STRUCTURE!
