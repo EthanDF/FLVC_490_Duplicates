@@ -2,6 +2,7 @@ from pymarc import *
 import json
 import time
 import csv
+import codecs
 
 def checkForBreak():
     """just checks if the function should break or not"""
@@ -332,7 +333,7 @@ def logStartEnd(now):
 def logResult(recordKey, logString):
 
     testinglogFile = 'testinglogFile.txt'
-    with open(testinglogFile, 'a') as log:
+    with codecs.open(testinglogFile, 'a', encoding='utf-8') as log:
         try:
             log.write('\n'+logString+'\n')
         except UnicodeEncodeError:
@@ -495,7 +496,7 @@ def writeLocalCheckResults(resultList, lSysNumber):
 
     # print(x)
 
-    with open(localResultCheck, 'a', newline='') as out:
+    with codecs.open(localResultCheck, 'a', encoding='utf-8') as out:
         a = csv.writer(out, delimiter=',', quoting=csv.QUOTE_ALL)
         try:
             a.writerows(y)
@@ -751,6 +752,16 @@ def betterCheck():
             for result in compResult:
                 compResultString = 'Not Found!\n\t\t'+compResultString+result+'\n'
 
+            ###LOG ACTIONABLE Results Log
+
+            sendForLocalCheckResults = [lSysNumber, oclcNumberL, local440]
+            writeLocalCheckResults(sendForLocalCheckResults, lSysNumber)
+
+            stop = False
+            # stop = checkForBreak()
+            if stop:
+                return
+
         logString = logString+'\n\tComparison Strings Not Found:'+'\n\t\t'+compResultString
 
 
@@ -759,7 +770,6 @@ def betterCheck():
         # logString = logString+'\n\tLocal 440 tag found in 830 Master:\n\t\t'+compResult
 
         logResult(str(keyCounter), logString)
-
 
         stop = False
         # stop = checkForBreak()
