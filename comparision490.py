@@ -35,11 +35,13 @@ def marc490(filename):
                 if rec['035']['a'] is None:
                     continue
                 elif '(OCoLC)' in rec['035']['a']:
-                        tempKey = rec['035']['a']
-                        tempKey = tempKey.strip('(OCoLC)')
-                        tempKey = int(tempKey)
+                    tempKey = rec['035']['a']
+                    tempKey = tempKey.strip('(OCoLC)')
+                    tempKey = int(tempKey)
+                    # if tempKey == 36126777:
+
                         # print(tempKey)
-                        recDict[tempKey] = rec.as_dict()
+                    recDict[tempKey] = rec.as_dict()
             except (TypeError, ValueError):
                 print(rec['001'], 'failed')
 
@@ -321,6 +323,34 @@ def getTagValues(keyDict, tagID, subfield):
                     resultTagValue = sfdict[subfield]
 
     return resultTagValue
+
+
+def returnOCLC(sentdict):
+
+    result035 = ''
+    # print(sentdict)
+
+    for v in sentdict['fields']:
+        # input('')
+        # v
+        for k in v:
+            # print('in v')
+            # k
+            if k == '035':
+                # print('035 found!')
+                # k
+                useVals  = v['035']['subfields']
+                for subDict in useVals:
+                    for tag in subDict:
+                        # print(tag)
+                        # print(tag == 'a')
+                        # print(subDict[tag][0:6])
+                        if tag == 'a' and subDict[tag][0:7] == '(OCoLC)':
+                            # print(subDict[tag])
+                            result035 = subDict[tag]
+                            return result035
+
+
 
 def logStartEnd(now):
     testinglogFile = 'testinglogFile.txt'
@@ -726,6 +756,83 @@ def controlled(l490, l830, m490, m830):
 
     return controlledHeading
 
+def referenceKeys(mDict):
+
+    referenceDict = {}
+    m035 = 0
+    ref = 0
+
+    for record in mDict:
+        # input('continue...')
+        fields = mDict[record]['fields']
+        for field in fields:
+            # print(field)
+            for key in field:
+                # print(key)
+                if key == '001':
+
+                    m035 = field[key]
+                    # print(sf)
+                    m035 = m035.replace('ocm', '')
+                    m035 = m035.replace('ocn', '')
+                    # print(m035)
+                        # input('key = 035!: ',m035)
+                if key == '019':
+                    # input('found 019')
+                    sf = field[key]['subfields']
+                    for refVal in sf:
+                        # print('019 is: ', refVal)
+                        ref = refVal['a']
+                        # print(ref)
+                        referenceDict[int(ref)] = int(m035)
+
+                    # for s in sf:
+                    #     m019List = s[]
+
+
+            # try:
+            #     m035List = field['035']['subfields']
+            #     input(m035List)
+            #     for sysNum in m035List:
+            #         m035 = sysNum['a']
+            # except KeyError:
+            #     print(field['001'])
+            #     break
+            #
+            # try:
+            #     m019List = field['019']['subfields']
+            #     for subfield in m019List:
+            #         m019 = subfield['a']
+            #         # print(m019)
+            #         referenceDict[m019] = m035
+            # except KeyError:
+            #     pass
+
+    return referenceDict
+
+def buildADict(lKeys, mKeys, rDict):
+
+    aDict = {}
+
+    for key in lKeys:
+        # print(key)
+
+        if key in mKeys:
+            aDict[key] = key
+
+        else:
+            # print('not found')
+            try:
+                aDict[key] = rDict[key]
+            except KeyError:
+                print(key, "not found, will be skipped")
+
+            stop = False
+            # stop = checkForBreak()
+            if stop:
+                return
+
+    return aDict
 
 def betterCheck():
 
@@ -739,20 +846,24 @@ def betterCheck():
     print('\nbuilding dictionaries...')
     lDict = marc490('10k.mrc')
     mDict = marc490('490OCLC.mrc')
+    rDict = referenceKeys(mDict)
     print('... DONE!')
 
 # Gets list of keys from the 2 dictionaries, and a third list of common keys
     print('\nbuilding lists...')
     lKeys = returnKeyList(lDict)
     mKeys = returnKeyList(mDict)
-    aKeys = compareKeyList(lKeys, mKeys)
+    # aKeys = compareKeyList(lKeys, mKeys)
+    aDict = buildADict(lKeys, mKeys, rDict)
     print('... DONE!')
 
 # return, for comparison the two OCLC numbers in the records
     print('\ncomparing results and writing to log')
     keyCounter = 0
-    for key in aKeys:
+    for key in aDict:
 
+        # if key == 747798947:
+        #     input('found 747798947')
         stop = False
         # stop = checkForBreak()
         if stop:
@@ -760,12 +871,12 @@ def betterCheck():
 
         lSysNumber = getTagValues(lDict[key], '001', None)
 
-        oclcNumberL = getTagValues(lDict[key], '035', 'a')
-        oclcNumberM = getTagValues(mDict[key], '035', 'a')
+        oclcNumberL = returnOCLC(lDict[key])
+        oclcNumberM = returnOCLC(mDict[aDict[key]])
 
         # Return Formats
         lFormat = returnFormat(lDict[key])
-        mFormat = returnFormat(mDict[key])
+        mFormat = returnFormat(mDict[aDict[key]])
         matchFormat = False
         if lFormat == mFormat:
             if lFormat.upper() == "UNKNOWN":
@@ -774,20 +885,20 @@ def betterCheck():
                 matchFormat = True
 
         local260a = getTagValues(lDict[key], '260', 'a')
-        master260a = getTagValues(mDict[key], '260', 'a')
+        master260a = getTagValues(mDict[aDict[key]], '260', 'a')
         local440 = getTags(lDict[key], '440')
         local440st = stringFormDict(local440)
-        master440 = getTags(mDict[key], '440')
+        master440 = getTags(mDict[aDict[key]], '440')
         master440st = stringFormDict(master440)
 
         local490 = getTags(lDict[key], '490')
         local490st = stringFormDict(local490)
-        master490 = getTags(mDict[key], '490')
+        master490 = getTags(mDict[aDict[key]], '490')
         master490st = stringFormDict(master490)
 
         local830 = getTags(lDict[key], '830')
         local830st = stringFormDict(local830)
-        master830 = getTags(mDict[key], '830')
+        master830 = getTags(mDict[aDict[key]], '830')
         master830st = stringFormDict(master830)
 
         #Begin logging protocol
@@ -795,6 +906,9 @@ def betterCheck():
 
         # add oclc numbers
         logString = logString+'\n\tOCLC Numbers:\n\t\tLocal: '+str(oclcNumberL)+'\n\t\tMaster: '+str(oclcNumberM)
+
+        if int(oclcNumberL.replace("(OCoLC)", "")) != int(oclcNumberM.replace("(OCoLC)", "")):
+            logString = logString+'\n\t\tOCLC Mismatch'
 
         # add formats
         logString = logString+'\n\tFormats (008 23): Formats Match?: '+str(matchFormat)
