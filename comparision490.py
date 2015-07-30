@@ -505,6 +505,31 @@ def writeLocalCheckResults(resultList, lSysNumber):
         except UnicodeDecodeError:
             print("error Decoding: system number ", lSysNumber)
 
+def writeAuthorityReviewSet(resultList, lSysNumber):
+
+    y = []
+    x = []
+    for a in resultList:
+        if len(a) > 0:
+            x.append(a)
+
+    y.append(x)
+
+    localResultCheck = 'AuthorityReviewSet.csv'
+
+    # print(x)
+
+    with codecs.open(localResultCheck, 'a', encoding='utf-8') as out:
+        a = csv.writer(out, delimiter=',', quoting=csv.QUOTE_ALL)
+        try:
+            a.writerows(y)
+        except UnicodeEncodeError:
+            print("error Encoding: system number ", lSysNumber)
+        except UnicodeDecodeError:
+            print("error Decoding: system number ", lSysNumber)
+
+
+
 def returnlocal440List(local440):
     """Only works for 440... returns the subfields in a list"""
 
@@ -788,6 +813,8 @@ def betterCheck():
             logString = logString+'\n\tDoes Not Pass Local Series Check'
             logResult(str(keyCounter), logString)
             keyCounter += 1
+            sendForAuthReview = [lSysNumber, oclcNumberL, local490, local830, master490, master830]
+            writeAuthorityReviewSet(sendForAuthReview, lSysNumber)
             continue
 
         ######THIS BIT IS THE SHINY NEW COMPARISON STRUCTURE!
