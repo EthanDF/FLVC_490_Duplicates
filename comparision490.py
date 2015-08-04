@@ -421,9 +421,14 @@ def writeLocalCheckResults(resultList, lSysNumber):
 
 def writeAuthorityReviewSet(resultList, lSysNumber):
 
+    if lSysNumber is None:
+        lSysNumber = 'None'
     y = []
     x = []
     for a in resultList:
+        if a is None:
+            x.append("None")
+            continue
         if len(a) > 0:
             x.append(a)
 
@@ -547,25 +552,25 @@ def checkSubFields(tagDictionary, key):
 
     return subfieldContinue
 
-def controlled(l490, l830, m490, m830):
+def controlled(m490):
     """check the local 490 for cases where the indicator = 1 and there is an 830
        check the master 490 for and indicator = 0 and no 830
        return true or false for meeting this condition"""
 
     controlledHeading = False
-    ind1L490 = False
+    # ind1L490 = True
     ind1M490 = False
-    hasL830 = False
-    hasNoM830 = False
+    # hasL830 = False
+    hasNo490 = False
 
-    for ind in l490:
-        ind1L490Value = ind['490']['ind1']
-        # print(ind1L490Value)
-        if ind1L490Value == '1':
-            ind1L490 = True
+    # for ind in l490:
+    #     ind1L490Value = ind['490']['ind1']
+    #     # print(ind1L490Value)
+    #     if ind1L490Value == '1':
+    #         ind1L490 = True
 
-    if len(l830) > 0:
-        hasL830 = True
+    # if len(l830) > 0:
+    #     hasL830 = True
 
     for ind in m490:
         ind1M490Value = ind['490']['ind1']
@@ -573,10 +578,10 @@ def controlled(l490, l830, m490, m830):
         if ind1M490Value == '0':
             ind1M490 = True
 
-    # if len(m830) == 0:
-    #     hasNoM830 = True
+    if len(m490) == 0:
+        hasNo490 = True
 
-    if(ind1L490 and hasL830 and ind1M490 and hasNoM830):
+    if(ind1M490 or hasNo490):
         controlledHeading = True
 
 
@@ -742,17 +747,18 @@ def betterCheck():
         logString = logString+'\n\tFormats (008 23): Formats Match?: '+str(matchFormat)
         logString = logString+'\n\t\tLocal: '+str(lFormat)+'\n\t\tMaster: '+str(mFormat)
 
-        logString = logString+'\n\tImprint (245):\n\t\tLocal :'+str(local245a)+'\n\t\tMaster: '+str(master245a)
+        logString = logString+'\n\tTitle (245):\n\t\tLocal :'+str(local245a)+'\n\t\tMaster: '+str(master245a)
         logString = logString+'\n\tSeries(440): \n\t\tLocal: \n\t\t'+local440st+'\n\t\tMaster: \n\t\t'+master440st
         logString = logString+'\n\tSeries(490):\n\t\tLocal: \n\t\t'+local490st+'\n\t\tMaster: \n\t\t'+master490st
         logString = logString+'\n\tSeries(830):\n\t\tLocal: \n\t\t'+local830st+'\n\t\tMaster: \n\t\t'+master830st
 
         ###Put in the test 1 check for subfield here: reference checkSubFields
 
-        localSeriesCheck = controlled(local490, local830, master490, master830)
+        # localSeriesCheck = controlled(local490, local830, master490, master830)
+        localSeriesCheck = controlled(master490)
 
         if localSeriesCheck:
-            logString = logString+'\n\tDoes Not Pass Local Series Check'
+            logString = logString+'\n\tGoes into the Authority Review Set:'
             logResult(str(keyCounter), logString)
             keyCounter += 1
             sendForAuthReview = [lSysNumber, oclcNumberL, local490, local830, master490, master830]
