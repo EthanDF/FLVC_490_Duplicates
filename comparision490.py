@@ -513,17 +513,35 @@ def betterComparison(lista, listb, listc, listd, liste):
 
     unfoundSeriesStringList = []
 
-    for series in lista:
-        if series in listb:
+    listaa = []
+    listbb = []
+    listcc = []
+    listdd = []
+    listee = []
+
+    for a in lista:
+        listaa.append(a.upper())
+    for b in listb:
+        listbb.append(b.upper())
+    for c in listc:
+        listcc.append(c.upper())
+    for d in listd:
+        listdd.append(d.upper())
+    for e in liste:
+        listee.append(e.upper())
+
+
+    for series in listaa:
+        if series in listbb:
             # print("found")
             continue
-        if series in listc:
+        if series in listcc:
             # print("found")
             continue
-        if series in listd:
+        if series in listdd:
             # print("found")
             continue
-        if series in liste:
+        if series in listee:
             # print("found")
             continue
 
