@@ -390,7 +390,7 @@ def returnString(d, dictKey):
         strResult = ''
         for di in sub[dictKey]['subfields']:
             for key in di:
-                if key != '5':
+                if key in('a', 'p'):
                     strResult = strResult + str(key)+': '+str(di[key])+' | '
         strList.append((strResult))
 
@@ -401,6 +401,9 @@ def writeLocalCheckResults(resultList, lSysNumber):
     y = []
     x = []
     for a in resultList:
+        if a is None:
+            x.append('None')
+            continue
         if len(a) > 0:
             x.append(a)
 
@@ -685,6 +688,39 @@ def buildADict(lKeys, mKeys, rDict):
 
     return aDict
 
+def writeCompResultString(compResult):
+    compResultString = ''
+
+    if len(compResult) == 0:
+        compResultString = 'None'
+    else:
+        for result in compResult:
+            compResultString = 'Not Found!\n\t\t'+compResultString+result+'\n'
+
+    return compResultString
+
+def writeBibsForOverlay(localSystemNumber, overlay):
+    # overlay = 1 implies yes
+    bibFile = 'bibsForOverlay.csv'
+
+
+    # print(x)
+    x = []
+    y = []
+    x.append(localSystemNumber)
+    x.append(overlay)
+    y.append(x)
+
+    with codecs.open(bibFile, 'a', encoding='utf-8') as out:
+        a = csv.writer(out, delimiter=',', quoting=csv.QUOTE_ALL)
+        try:
+            if len(y) > 0:
+                a.writerows(y)
+        except UnicodeEncodeError:
+            print("error Encoding: system number ", localSystemNumber)
+        except UnicodeDecodeError:
+            print("error Decoding: system number ", localSystemNumber)
+
 def betterCheck():
 
     now = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -781,6 +817,7 @@ def betterCheck():
             keyCounter += 1
             sendForAuthReview = [lSysNumber, oclcNumberL, local490, local830, master490, master830]
             writeAuthorityReviewSet(sendForAuthReview, lSysNumber)
+            writeBibsForOverlay(lSysNumber, '0')
             continue
 
         ######THIS BIT IS THE SHINY NEW COMPARISON STRUCTURE!
@@ -811,32 +848,61 @@ def betterCheck():
 
         #Do the actual comparison!
 
-        compResult = betterComparison(l440, l490, l830, m490, m830)
-        compResultString = ''
-        if len(compResult) == 0:
-            compResultString = 'None'
-        else:
-            for result in compResult:
-                compResultString = 'Not Found!\n\t\t'+compResultString+result+'\n'
+        wasteList = ['-1']
 
-            ###LOG ACTIONABLE Results Log
-
-            sendForLocalCheckResults = [lSysNumber, oclcNumberL, local440]
+        #Compare Local440
+        compResult = betterComparison(l440, m490, m830, wasteList, wasteList)
+        compResultString = writeCompResultString(compResult)
+        ###LOG ACTIONABLE Results Log
+        if len(compResult) > 0:
+            sendForLocalCheckResults = [lSysNumber, oclcNumberL, '440', local440]
             writeLocalCheckResults(sendForLocalCheckResults, lSysNumber)
+            logString = logString+'\n\tComparison Strings Not Found (440):'+'\n\t\t'+compResultString
+            writeBibsForOverlay(lSysNumber, '0')
+            logResult(str(keyCounter), logString)
+            keyCounter += 1
+            continue
 
-            stop = False
-            # stop = checkForBreak()
-            if stop:
-                return
+        #Compare Local490
+        compResult = betterComparison(l490, m490, wasteList, wasteList, wasteList)
+        compResultString = writeCompResultString(compResult)
+        ###LOG ACTIONABLE Results Log
+        if len(compResult) > 0:
+            sendForLocalCheckResults = [lSysNumber, oclcNumberL, '490', local490]
+            writeLocalCheckResults(sendForLocalCheckResults, lSysNumber)
+            logString = logString+'\n\tComparison Strings Not Found (490):'+'\n\t\t'+compResultString
+            writeBibsForOverlay(lSysNumber, '0')
+            logResult(str(keyCounter), logString)
+            keyCounter += 1
+            continue
 
-        logString = logString+'\n\tComparison Strings Not Found:'+'\n\t\t'+compResultString
+        #Compare Local830
+        compResult = betterComparison(l830, m830, wasteList, wasteList, wasteList)
+        compResultString = writeCompResultString(compResult)
+        ###LOG ACTIONABLE Results Log
+        if len(compResult) > 0:
+            sendForLocalCheckResults = [lSysNumber, oclcNumberL, '830', local830]
+            writeLocalCheckResults(sendForLocalCheckResults, lSysNumber)
+            logString = logString+'\n\tComparison Strings Not Found (830):'+'\n\t\t'+compResultString
+            writeBibsForOverlay(lSysNumber, '0')
+            logResult(str(keyCounter), logString)
+            keyCounter += 1
+            continue
 
+        stop = False
+        # stop = checkForBreak()
+        if stop:
+            return
 
         #######################################################
 
         # logString = logString+'\n\tLocal 440 tag found in 830 Master:\n\t\t'+compResult
 
+        #If the loop is still here, the record is okay to overlay
+        writeBibsForOverlay(lSysNumber, '1')
         logResult(str(keyCounter), logString)
+
+
 
         keyCounter += 1
 
