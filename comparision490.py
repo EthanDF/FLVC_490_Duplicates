@@ -122,9 +122,9 @@ def dictValStrip(dictVal):
 
 def stringValStrip(listString):
     arts = ['the', 'a', 'an', 'el', 'los', 'la', 'las', 'un', 'unos', 'una', 'unas', 'le', 'la', 'l’', 'les', 'un',
-            'une', 'des']
+            'une', 'des', 'no.', 'vol', 'no', 'vol.']
 
-    punct = [';', ',', '.', '[', ']', '<', '>', '|']
+    punct = [';', ',', '.', '[', ']', '<', '>', '|', '(', ')', '-', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
 
 
     afterListItem = []
