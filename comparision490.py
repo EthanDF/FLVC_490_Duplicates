@@ -122,7 +122,7 @@ def dictValStrip(dictVal):
 
 def stringValStrip(listString):
     arts = ['the', 'a', 'an', 'el', 'los', 'la', 'las', 'un', 'unos', 'una', 'unas', 'le', 'la', 'l’', 'les', 'un',
-            'une', 'des', 'no.', 'vol', 'no', 'vol.']
+            'une', 'des', 'no.', 'vol', 'no', 'vol.' 'v.', 'v']
 
     punct = [';', ',', '.', '[', ']', '<', '>', '|', '(', ')', '-', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
 
@@ -409,7 +409,7 @@ def writeLocalCheckResults(resultList, lSysNumber):
 
     y.append(x)
 
-    localResultCheck = 'localResultLog.csv'
+    localResultCheck = 'bibsAndSeriesCannotOverlay.csv'
 
     # print(x)
 
@@ -515,6 +515,7 @@ def compare440to490to830(lSysNumber, oclcNumberL, local440, local490, local830):
 def betterComparison(lista, listb, listc, listd, liste):
 
     unfoundSeriesStringList = []
+    badEndingValues = ['V']
 
     listaa = []
     listbb = []
@@ -523,16 +524,25 @@ def betterComparison(lista, listb, listc, listd, liste):
     listee = []
 
     for a in lista:
+        if len(a) > 0 and a.upper()[-1] in badEndingValues:
+            a = a[0:len(a)-1].strip()
         listaa.append(a.upper())
-    for b in listb:
-        listbb.append(b.upper())
-    for c in listc:
-        listcc.append(c.upper())
-    for d in listd:
-        listdd.append(d.upper())
-    for e in liste:
-        listee.append(e.upper())
-
+    for a in listb:
+        if len(a) > 0 and a.upper()[-1] in badEndingValues:
+            a = a[0:len(a)-1].strip()
+        listbb.append(a.upper())
+    for a in listc:
+        if len(a) > 0 and a.upper()[-1] in badEndingValues:
+            a = a[0:len(a)-1].strip()
+        listcc.append(a.upper())
+    for a in listd:
+        if len(a) > 0 and a.upper()[-1] in badEndingValues:
+            a = a[0:len(a)-1].strip()
+        listdd.append(a.upper())
+    for a in liste:
+        if len(a) > 0 and a.upper()[-1] in badEndingValues:
+            a = a[0:len(a)-1].strip()
+        listee.append(a.upper())
 
     for series in listaa:
         if series in listbb:
