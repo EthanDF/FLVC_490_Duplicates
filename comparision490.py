@@ -884,7 +884,7 @@ def betterCheck():
             continue
 
         #Compare Local490
-        compResult = betterComparison(l490, m490, wasteList, wasteList, wasteList)
+        compResult = betterComparison(l490, m490, m830, wasteList, wasteList)
         compResultString = writeCompResultString(compResult)
         ###LOG ACTIONABLE Results Log
         if len(compResult) > 0:
