@@ -922,8 +922,6 @@ def betterCheck():
         writeBibsForOverlay(lSysNumber, '1')
         logResult(str(keyCounter), logString)
 
-
-
         keyCounter += 1
 
     now = time.strftime('%Y-%m-%d %H:%M:%S')
