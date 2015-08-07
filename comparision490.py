@@ -25,6 +25,7 @@ def marc490(filename):
         reader = MARCReader(fh, to_unicode=True, force_utf8=True)
 
         for rec in reader:
+            rec.force_utf8 = True
             # return rec
             # print(rec.leader)
 
@@ -124,8 +125,11 @@ def stringValStrip(listString):
     arts = ['the', 'a', 'an', 'el', 'los', 'la', 'las', 'un', 'unos', 'una', 'unas', 'le', 'la', 'l’', 'les', 'un',
             'une', 'des', 'no.', 'vol', 'no', 'vol.' 'v.', 'v']
 
-    punct = [';', ',', '.', '[', ']', '<', '>', '|', '(', ')', '-', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+    punct = [';', ',', '.', '[', ']', '<', '>', '|', '(', ')', '-', '{', '}', ':', '?', '…', '!', "'", '"', "/", '\\',
+             '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
+             '?']
 
+    unicodeChar = ['\u0301', '?', '\u0306']
 
     afterListItem = []
     for listItem in listString:
@@ -137,7 +141,13 @@ def stringValStrip(listString):
             if w == 'v:':
                 break
             if w.upper() not in [x.upper() for x in arts] and w not in punct:
-                tempafterListItem.append(w)
+
+                for char in unicodeChar:
+                    if char in w:
+                        w = w[:w.find(char)-1]+w[w.find(char)+1:]
+
+                w = w.encode('ascii', 'replace')
+                tempafterListItem.append(w.decode('utf-8'))
         # print(tempafterListItem)
 
         # input('paused')
