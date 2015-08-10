@@ -3,6 +3,7 @@ import json
 import time
 import csv
 import codecs
+import unicodedata
 
 def checkForBreak():
     """just checks if the function should break or not"""
@@ -142,12 +143,16 @@ def stringValStrip(listString):
                 break
             if w.upper() not in [x.upper() for x in arts] and w not in punct:
 
-                for char in unicodeChar:
-                    if char in w:
-                        w = w[:w.find(char)-1]+w[w.find(char)+1:]
+                # for char in unicodeChar:
+                #     w = unicodedata.normalize('NFD', w)
 
-                w = w.encode('ascii', 'replace')
-                tempafterListItem.append(w.decode('utf-8'))
+                # for char in unicodeChar:
+                #     if char in w:
+                #         w = w[:w.find(char)-1]+w[w.find(char)+1:]
+
+                # w = w.encode('ascii', 'replace')
+                # w = w.decode('utf-8')
+                tempafterListItem.append(w)
         # print(tempafterListItem)
 
         # input('paused')
@@ -402,7 +407,7 @@ def returnString(d, dictKey):
             for key in di:
                 if key in('a', 'p'):
                     strResult = strResult + str(key)+': '+str(di[key])+' | '
-        strList.append((strResult))
+        strList.append((unicodedata.normalize('NFD', strResult)))
 
     return strList
 
