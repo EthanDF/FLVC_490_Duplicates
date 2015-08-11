@@ -724,7 +724,7 @@ def writeCompResultString(compResult):
 
     return compResultString
 
-def writeBibsForOverlay(localSystemNumber, overlay):
+def writeBibsForOverlay(localSystemNumber, localOCLCNumber, overlay):
     # overlay = 1 implies yes
     bibFile = 'bibsForOverlay.csv'
 
@@ -733,6 +733,7 @@ def writeBibsForOverlay(localSystemNumber, overlay):
     x = []
     y = []
     x.append(localSystemNumber)
+    x.append(localOCLCNumber)
     x.append(overlay)
     y.append(x)
 
@@ -842,7 +843,7 @@ def betterCheck():
             keyCounter += 1
             sendForAuthReview = [lSysNumber, oclcNumberL, local490, local830, master490, master830]
             writeAuthorityReviewSet(sendForAuthReview, lSysNumber)
-            writeBibsForOverlay(lSysNumber, '0')
+            writeBibsForOverlay(lSysNumber, oclcNumberL, '0')
             continue
 
         ######THIS BIT IS THE SHINY NEW COMPARISON STRUCTURE!
@@ -883,7 +884,7 @@ def betterCheck():
             sendForLocalCheckResults = [lSysNumber, oclcNumberL, '440', local440]
             writeLocalCheckResults(sendForLocalCheckResults, lSysNumber)
             logString = logString+'\n\tComparison Strings Not Found (440):'+'\n\t\t'+compResultString
-            writeBibsForOverlay(lSysNumber, '0')
+            writeBibsForOverlay(lSysNumber, oclcNumberL, '0')
             logResult(str(keyCounter), logString)
             keyCounter += 1
             continue
@@ -896,7 +897,7 @@ def betterCheck():
             sendForLocalCheckResults = [lSysNumber, oclcNumberL, '490', local490]
             writeLocalCheckResults(sendForLocalCheckResults, lSysNumber)
             logString = logString+'\n\tComparison Strings Not Found (490):'+'\n\t\t'+compResultString
-            writeBibsForOverlay(lSysNumber, '0')
+            writeBibsForOverlay(lSysNumber, oclcNumberL, '0')
             logResult(str(keyCounter), logString)
             keyCounter += 1
             continue
@@ -909,7 +910,7 @@ def betterCheck():
             sendForLocalCheckResults = [lSysNumber, oclcNumberL, '830', local830]
             writeLocalCheckResults(sendForLocalCheckResults, lSysNumber)
             logString = logString+'\n\tComparison Strings Not Found (830):'+'\n\t\t'+compResultString
-            writeBibsForOverlay(lSysNumber, '0')
+            writeBibsForOverlay(lSysNumber, oclcNumberL, '0')
             logResult(str(keyCounter), logString)
             keyCounter += 1
             continue
@@ -924,7 +925,7 @@ def betterCheck():
         # logString = logString+'\n\tLocal 440 tag found in 830 Master:\n\t\t'+compResult
 
         #If the loop is still here, the record is okay to overlay
-        writeBibsForOverlay(lSysNumber, '1')
+        writeBibsForOverlay(lSysNumber, oclcNumberL, '1')
         logResult(str(keyCounter), logString)
 
         keyCounter += 1
