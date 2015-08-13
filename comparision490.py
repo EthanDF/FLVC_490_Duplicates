@@ -124,7 +124,7 @@ def dictValStrip(dictVal):
 
 def stringValStrip(listString):
     arts = ['the', 'a', 'an', 'el', 'los', 'la', 'las', 'un', 'unos', 'una', 'unas', 'le', 'la', 'l’', 'les', 'un',
-            'une', 'des', 'no.', 'vol', 'no', 'vol.' 'v.', 'v']
+            'une', 'des', 'no.', 'vol', 'no', 'vol.', 'v.', 'v', '[no.', 'a:']
 
     punct = [';', ',', '.', '[', ']', '<', '>', '|', '(', ')', '-', '{', '}', ':', '?', '…', '!', "'", '"', "/", '\\',
              '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
@@ -172,6 +172,18 @@ def stringValStrip(listString):
         for letter in stTempAfterListItem:
             if letter not in punct:
                 stTempAfterListItem2 = stTempAfterListItem2+letter
+
+
+        # remove cases where pronouns appear in the first 4 characters
+        startingProunouns = ['SHE ', 'HIS ', 'HER ', 'HIM ']
+
+        # print(stTempAfterListItem2)
+
+        if stTempAfterListItem2[0:4].upper() in startingProunouns:
+            # print("found!")
+            stTempAfterListItem2 = stTempAfterListItem2[4:]
+        else:
+            stTempAfterListItem2 = stTempAfterListItem2
 
         stTempAfterListItem = stTempAfterListItem2.strip()
 
@@ -531,6 +543,7 @@ def betterComparison(lista, listb, listc, listd, liste):
 
     unfoundSeriesStringList = []
     badEndingValues = ['V']
+    beginningWords = ['he ', 'her', 'his', 'she']
 
     listaa = []
     listbb = []
@@ -558,6 +571,7 @@ def betterComparison(lista, listb, listc, listd, liste):
         if len(a) > 0 and a.upper()[-1] in badEndingValues:
             a = a[0:len(a)-1].strip()
         listee.append(a.upper())
+
 
     for series in listaa:
         if series in listbb:
