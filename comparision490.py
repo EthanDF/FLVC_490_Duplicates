@@ -747,6 +747,22 @@ def writeBibsForOverlay(localSystemNumber, localOCLCNumber, overlay):
         except UnicodeDecodeError:
             print("error Decoding: system number ", localSystemNumber)
 
+def spitOutMismatchedOCLCNumbers(localSystemNumber, localOCLCNumber, masterOCLCNumber):
+    # overlay = 1 implies yes
+    logFile = 'mismatchedOCLCNumbers.csv'
+
+    # print(x)
+    x = []
+    y = []
+    x.append(localSystemNumber)
+    x.append(localOCLCNumber)
+    x.append(masterOCLCNumber)
+    y.append(x)
+
+    with open(logFile, 'a', newline='') as out:
+            a = csv.writer(out, delimiter=',', quoting=csv.QUOTE_ALL)
+            a.writerows(y)
+
 def betterCheck():
 
     now = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -822,6 +838,7 @@ def betterCheck():
 
         if int(oclcNumberL.replace("(OCoLC)", "")) != int(oclcNumberM.replace("(OCoLC)", "")):
             logString = logString+'\n\t\tOCLC Mismatch'
+            spitOutMismatchedOCLCNumbers(lSysNumber, oclcNumberL, oclcNumberM)
 
         # add formats
         logString = logString+'\n\tFormats (008 23): Formats Match?: '+str(matchFormat)
